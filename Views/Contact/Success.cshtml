@@ -1,0 +1,31 @@
+﻿
+<div class="text-center">
+   Success!
+</div>
+
+<lorem></lorem>
+
+
+@section Scripts {
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        // Sending a message to the server
+        connection.invoke("SendMessage", "User1", "Hello, World!").catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        // Receiving a message from the server
+        connection.on("ReceiveMessage", function (user, message) {
+            // Handle the received message
+            // For example, you could display it in the console or on the webpage
+            console.log(user + ": " + message);
+        });
+    </script>
+}

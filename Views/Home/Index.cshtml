@@ -1,0 +1,51 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.AspNetCore.SignalR
+@inject IViewLocalizer ViewLocalizer
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="text-center">
+    @ViewLocalizer["Welcome to my friendster page!"]
+</div>
+
+<div id="messages"></div>
+<button id="sendButton">Send Message</button>
+@section Scripts {
+    // inladen van het library signalr
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.3/signalr.min.js"></script>
+
+    <script>
+        // verbinden naar de chathub
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        document.getElementById("sendButton").addEventListener("click", function () {
+            // bericht versturen wanneer het knop wordt gedrukt
+            connection.invoke("SendMessage", "User1", "Hello, World!").catch(function (err) {
+                return console.error(err.toString());
+            });
+        });
+
+        // Ontvangen van het bericht en verwerking
+        connection.on("ReceiveMessage", function (user, message) {
+            // paragraph creeren
+            var para = document.createElement("p");
+
+            // bericht toevoegen aan het paragraph
+            var node = document.createTextNode(user + ": " + message);
+            para.appendChild(node);
+
+            // paragraph toevoegen aan het div met alle berichten
+            var element = document.getElementById("messages");
+            element.appendChild(para);
+        });
+    </script>
+}
